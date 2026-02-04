@@ -1,4 +1,5 @@
-import { GraphApiClient, ThreadsMedia, ThreadsInsight } from '@meta-mcp/core';
+import { GraphApiClient, ThreadsMedia, ThreadsInsight, ToolRegistry } from '@meta-mcp/core';
+export { ToolDefinition, ToolHandler, ToolRegistry } from '@meta-mcp/core';
 import { z } from 'zod';
 import * as ai from 'ai';
 
@@ -70,17 +71,8 @@ type ThGetUserThreadsArgs = z.infer<typeof toolSchemas.th_get_user_threads>;
 type ThGetUserInsightsArgs = z.infer<typeof toolSchemas.th_get_user_insights>;
 type ThGetPublishingLimitArgs = z.infer<typeof toolSchemas.th_get_publishing_limit>;
 
-interface ToolDefinition {
-    name: ToolName;
-    description: string;
-    inputSchema: Record<string, unknown>;
-}
-type ToolHandler = (args: Record<string, unknown>) => Promise<unknown> | unknown;
-interface ToolRegistry {
-    definitions: ToolDefinition[];
-    handlers: Record<ToolName, ToolHandler>;
-}
-declare const createToolRegistry: (manager: ThreadsManager) => ToolRegistry;
+declare const createToolRegistry: (manager: ThreadsManager) => ToolRegistry<ToolName>;
+type ThreadsToolRegistry = ToolRegistry<ToolName>;
 
 declare const createAiSdkTools: (manager?: ThreadsManager) => {
     th_post_thread: ai.Tool<any, unknown> & {
@@ -97,4 +89,4 @@ declare const createAiSdkTools: (manager?: ThreadsManager) => {
     };
 };
 
-export { type ThGetPublishingLimitArgs, type ThGetUserInsightsArgs, type ThGetUserThreadsArgs, type ThPostThreadArgs, ThreadsManager, type ToolDefinition, type ToolHandler, type ToolName, type ToolRegistry, createAiSdkTools, createToolRegistry, toolDescriptions, toolSchemas };
+export { type ThGetPublishingLimitArgs, type ThGetUserInsightsArgs, type ThGetUserThreadsArgs, type ThPostThreadArgs, ThreadsManager, type ThreadsToolRegistry, type ToolName, createAiSdkTools, createToolRegistry, toolDescriptions, toolSchemas };

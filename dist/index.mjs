@@ -120,11 +120,11 @@ var toolDescriptions = {
 };
 
 // src/toolRegistry.ts
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { buildToolDefinitions, parseToolArgs } from "@meta-mcp/core";
 var createToolRegistry = (manager) => {
   const handlers = {
     th_post_thread: async (args) => {
-      const parsed = toolSchemas.th_post_thread.parse(args);
+      const parsed = parseToolArgs(toolSchemas.th_post_thread, args);
       return manager.postThread(parsed.text, parsed.media_type, parsed.media_url, {
         reply_control: parsed.reply_control,
         quote_post_id: parsed.quote_post_id,
@@ -133,27 +133,13 @@ var createToolRegistry = (manager) => {
       });
     },
     th_get_user_threads: async (args) => {
-      const parsed = toolSchemas.th_get_user_threads.parse(args);
+      const parsed = parseToolArgs(toolSchemas.th_get_user_threads, args);
       return manager.getUserThreads(parsed.limit);
     },
-    th_get_user_insights: async () => {
-      return manager.getUserInsights();
-    },
-    th_get_publishing_limit: async () => {
-      return manager.getPublishingLimit();
-    }
+    th_get_user_insights: async () => manager.getUserInsights(),
+    th_get_publishing_limit: async () => manager.getPublishingLimit()
   };
-  const definitions = Object.keys(toolSchemas).map((name) => ({
-    name,
-    description: toolDescriptions[name],
-    inputSchema: zodToJsonSchema(
-      toolSchemas[name],
-      {
-        name,
-        $refStrategy: "none"
-      }
-    )
-  }));
+  const definitions = buildToolDefinitions(toolSchemas, toolDescriptions);
   return { definitions, handlers };
 };
 
